@@ -46,7 +46,7 @@ function promptGpt() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer ',
         },
         body: JSON.stringify(requestData),
       })
