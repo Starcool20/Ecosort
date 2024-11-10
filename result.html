@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Classification Result - EcoSort</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <h2>Classification Result</h2>
+    </header>
+    <main>
+      <div class="card">
+        <h3 id="classificationResult">__________</h3>
+        <p>Eco Tip: <span id="ecoTip">______________________________</span></p>
+        <p>Green Points Earned: <span id="earnedPoints">__</span></p>
+        <button class="btn" onclick="window.location.href='upload.html'">Classify Another</button>
+        <button class="btn-secondary" onclick="window.location.replace('dashboard.html')">Go Home</button>
+      </div>
+    </main>
+  </div>
+  <div class="loading-overlay00" id="loadingOverlay">
+    <div class="loading-overlaycont">
+      <div class="loading-animation00"></div>
+    </div>
+  </div>
+  <script src="results.js"></script>
+</body>
+
+</html>
