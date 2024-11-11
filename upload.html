@@ -15,16 +15,17 @@
         <main>
             <div class="card">
                 <form>
-                    <input type="file" accept="image/*" class="file-input" onchange="previewImage(event)">
+                    <input type="file" accept="image/jpeg" class="file-input">
                     <div class="image-preview">
                         <img id="preview" src="#" alt="Image Preview" style="display: none;">
                     </div>
                 </form>
-                <button class="btn" onclick="proceed()">Classify Waste</button>
+                <button class="btn">Classify Waste</button>
             </div>
         </main>
     </div>
-
-    <script src="script.js"></script>
+    
+    <div id="toast">This is a toast message</div>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

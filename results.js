@@ -1,15 +1,16 @@
 showOverlay();
+
 let rawData = null;
 const imgStr = localStorage.getItem('img');
 let requestData = {
-  model: "gpt-4o",
+  model: "gpt-4o-mini",
   messages: [
     {
       role: "user",
       content: [
         {
           type: "text",
-          text: "Analyze this image to determine if it contains any waste such as Plastic(single - use plastics, bottles, packaging, microplastics), Metal(aluminum cans, scrap metal, electronic waste), Glass(bottles, window panes, broken glass), Paper and Cardboard(newspapers, magazines, office paper, cardboard boxes), Organic / Biodegradable Waste(food waste, yard waste, agricultural waste, wood waste), Textile(clothing, fabric scraps, carpets, industrial textile waste),Electronic Waste(smartphones, computers, household electronics, batteries, wiring),Chemical and Hazardous Waste(cleaning agents, pesticides, paints, medical waste),Construction and Demolition Waste(concrete, bricks, tiles, roofing materials, plumbing and electrical),Rubber(tires, inner tubes, industrial rubber waste),Biomedical Waste(surgical instruments, syringes, contaminated bandages, pathological waste), Radioactive Waste(nuclear power plant waste, medical radioactive materials, industrial sources),Miscellaneous(ashes from combustion, bulky waste like furniture and mattresses, used tires). If waste is present, output only one the waste category (Plastic Waste (Recyclable); Metal Waste (Recyclable); Glass Waste (Recyclable, odourless); Paper and Cardboard Waste (Recyclable, odourless); Organic/Biodegradable Waste (Organic); Textile Waste (Recyclable); Electronic Waste (Hazardous); Chemical and Hazardous Waste (Hazardous); Construction and Demolition Waste (Recyclable, odourless); Rubber Waste (Recyclable); Biomedical Waste (Hazardous); Radioactive Waste (Hazardous); Miscellaneous Waste (Other). Note: Use this Output format: {Waste Category} Eco-friendly tip {Eco-friendly tip} Kg:{How many kg likely will it be}"
+          text: "Analyze this image to determine if it contains any waste such as Plastic(single - use plastics, bottles, packaging, microplastics), Metal(aluminum cans, scrap metal, electronic waste), Glass(bottles, window panes, broken glass), Paper and Cardboard(newspapers, magazines, office paper, cardboard boxes), Organic / Biodegradable Waste(food waste, yard waste, agricultural waste, wood waste), Textile(clothing, fabric scraps, carpets, industrial textile waste),Electronic Waste(smartphones, computers, household electronics, batteries, wiring),Chemical and Hazardous Waste(cleaning agents, pesticides, paints, medical waste),Construction and Demolition Waste(concrete, bricks, tiles, roofing materials, plumbing and electrical),Rubber(tires, inner tubes, industrial rubber waste),Biomedical Waste(surgical instruments, syringes, contaminated bandages, pathological waste), Radioactive Waste(nuclear power plant waste, medical radioactive materials, industrial sources),Miscellaneous(ashes from combustion, bulky waste like furniture and mattresses, used tires). If waste is present, output only one the waste category (Plastic Waste (Recyclable); Metal Waste (Recyclable); Glass Waste (Recyclable, odourless); Paper and Cardboard Waste (Recyclable, odourless); Organic/Biodegradable Waste (Organic); Textile Waste (Recyclable); Electronic Waste (Hazardous); Chemical and Hazardous Waste (Hazardous); Construction and Demolition Waste (Recyclable, odourless); Rubber Waste (Recyclable); Biomedical Waste (Hazardous); Radioactive Waste (Hazardous); Miscellaneous Waste (Other). Note: Use this Output format: {Waste Category} Eco-friendly tip: {Eco-friendly tip} Kg:{How many kg likely will it be}"
         },
         {
           type: "image_url",
@@ -24,9 +25,10 @@ let requestData = {
 
 (async () => {
   localStorage.setItem('img', '');
+  //console.log('Processing')
   await promptGpt();
   // Call the function to get user location data
-  await getUserLocation();
+  const location = await getUserLocation();
 
   if (rawData !== null && rawData !== undefined) {
     const wasteInfo = extractWasteInfo(rawData.choices[0].message.content);
@@ -35,6 +37,7 @@ let requestData = {
     populate_data(wasteInfo.wasteCategory, wasteInfo.ecoTip);
 
     addPoint(10, wasteInfo.kg);
+    updateAnalysisDB(location.Country, wasteInfo.kg);
     removeOverlay();
   }
 })();
@@ -46,7 +49,7 @@ function promptGpt() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ',
+          'Authorization': 'Bearer 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',
         },
         body: JSON.stringify(requestData),
       })
@@ -75,8 +78,8 @@ function extractWasteInfo(content) {
 
   return {
     wasteCategory: categoryMatch ? categoryMatch[1].trim() : "Category not found", // Extracts recyclable category
-    ecoTip: ecoTipMatch ? ecoTipMatch[1].trim() : "Eco-tip not found",  // Extracts eco-tip
-    kg: kgMatch[1]
+    ecoTip: ecoTipMatch ? ecoTipMatch[1].trim() : "Eco-tip not found", // Extracts eco-tip
+    kg: kgMatch ? kgMatch[1].trim() : 0
   };
 }
 
@@ -92,13 +95,10 @@ function removeOverlay() {
 
 function addPoint(point, kg) {
   let previous_point = parseInt(localStorage.getItem('point'), 10) || 0;
-  let previous_kg = parseInt(localStorage.getItem('kg'), 10) || 0;
-  if (isNaN(previous_point) || isNaN(previous_kg)) {
-    previous_point = 0;
-    previous_kg = 0;
-  }
-  const total_point= previous_point + point;
-  const total_kg = previous_kg + kg;
+  let previous_kg = parseFloat(localStorage.getItem('kg')) || 0.0;
+
+  const total_point = previous_point + point;
+  let total_kg = parseFloat(kg) + previous_kg;  
   localStorage.setItem('point', total_point.toString());
   localStorage.setItem('kg', total_kg.toString());
 }
@@ -135,4 +135,34 @@ function populate_data(wasteCategory, wasteInfo) {
   document.getElementById('classificationResult').innerText = wasteCategory;
   document.getElementById('ecoTip').textContent = wasteInfo;
   document.getElementById('earnedPoints').textContent = '10';
+}
+
+
+
+function updateAnalysisDB(country_name, Kg) {
+  return new Promise((resolve, reject) => {
+    const reference = ref(db, 'EcoSort/Countries');
+    runTransaction(reference, (data) => {
+        if (!data) {
+          data = {};
+        }
+        if (data[country_name]) {
+          const kg = parseFloat(Kg).toFixed(2);
+          data[country_name].kg = data[country_name].kg + parseFloat(kg);
+        } else {
+          const kg = parseFloat(Kg).toFixed(2);
+          data[country_name] = {
+            name: country_name,
+            kg: parseFloat(kg)
+          };
+        }
+        return data;
+      })
+      .then((result) => {
+        resolve();
+      })
+      .catch((error) => {
+        reject();
+      });
+  });
 }
