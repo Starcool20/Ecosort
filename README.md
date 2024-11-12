@@ -42,5 +42,8 @@ EcoSort tackles the global waste crisis by simplifying recycling decisions with 
 - **Microplastics Detection**: Next, we plan to add functionality to detect microplastics in water, addressing another critical environmental issue.
 - **Extended Partnerships**: Future expansions could include collaborations with environmental organizations for wider reach.
 
+## 📝 Notes
+I'm currently unable to integrate photorealistic 3D maps because I can't create a Google Cloud account and get the API key due to some financial restrictions. However, if this becomes possible, I plan to implement 3D mapping to pinpoint countries with the highest waste-sorting impact. This feature would visually highlight global contributions and further support our mission to address environmental challenges.
+
 ## 📬 Thank You for Checking Out EcoSort!
 EcoSort is a step toward a greener, more sustainable world. We welcome your feedback and ideas to make EcoSort even more impactful.
