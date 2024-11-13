@@ -1,6 +1,7 @@
 showOverlay();
 
 let rawData = null;
+const OPENAI_API_KEY = 'PARSE_YOUR_OPENAI_API_KEY_HERE';
 const imgStr = localStorage.getItem('img');
 let requestData = {
   model: "gpt-4o-mini",
@@ -49,7 +50,7 @@ function promptGpt() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
         },
         body: JSON.stringify(requestData),
       })
@@ -98,7 +99,8 @@ function addPoint(point, kg) {
   let previous_kg = parseFloat(localStorage.getItem('kg')) || 0.0;
 
   const total_point = previous_point + point;
-  let total_kg = parseFloat(kg) + previous_kg;  
+  let total_kg = parseFloat(kg) + previous_kg;
+  total_kg = parseFloat(total_kg).toFixed(2);
   localStorage.setItem('point', total_point.toString());
   localStorage.setItem('kg', total_kg.toString());
 }

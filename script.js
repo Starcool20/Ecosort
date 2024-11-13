@@ -92,7 +92,7 @@ function renderCountryChart() {
 
 if (window.location.pathname.includes('dashboard.html')) {
   document.getElementById('greenPoints').textContent = localStorage.getItem('point') || 0;
-  document.getElementById('divertedWaste').textContent = localStorage.getItem('kg') || 0;
+  document.getElementById('divertedWaste').textContent = parseFloat(localStorage.getItem('kg')).toFixed(2) || 0;
 }
 
 // Image Preview Function
